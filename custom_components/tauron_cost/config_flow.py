@@ -39,7 +39,7 @@ PRICE_FIELDS = (
 
 def _price_schema(current: dict[str, Any]) -> vol.Schema:
     price = NumberSelector(
-        NumberSelectorConfig(min=0, step=0.0001, mode=NumberSelectorMode.BOX)
+        NumberSelectorConfig(min=0, step="any", mode=NumberSelectorMode.BOX)
     )
     return vol.Schema(
         {
