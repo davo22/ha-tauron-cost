@@ -20,7 +20,6 @@ from homeassistant.helpers.selector import (
 from .const import (
     CONF_CREDIT_T1,
     CONF_CREDIT_T2,
-    CONF_PREFIX,
     CONF_PRICE_T1,
     CONF_PRICE_T2,
     DEFAULT_CREDIT_T1,
@@ -29,7 +28,6 @@ from .const import (
     DEFAULT_PRICE_T2,
     DOMAIN,
 )
-from .statistics import async_detect_prefix
 
 PRICE_FIELDS = (
     (CONF_PRICE_T1, DEFAULT_PRICE_T1),
@@ -64,22 +62,11 @@ class TauronCostConfigFlow(ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
-        """Detect the Tauron importer, then take the zone prices."""
-        prefix = await async_detect_prefix(self.hass)
-        if prefix is None:
-            return self.async_abort(reason="no_importer")
-
+        """Collect the zone prices. The Tauron importer is found at setup time."""
         if user_input is not None:
-            # Set the unique id only now (not on form display), so showing the
-            # form never leaves a half-registered flow that later starts collide
-            # with as "already_in_progress".
-            await self.async_set_unique_id(prefix)
+            await self.async_set_unique_id(DOMAIN)
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(
-                title="Tauron Cost",
-                data={CONF_PREFIX: prefix},
-                options=dict(user_input),
-            )
+            return self.async_create_entry(title="Tauron Cost", options=dict(user_input))
 
         return self.async_show_form(step_id="user", data_schema=_price_schema({}))
 

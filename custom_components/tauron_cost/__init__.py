@@ -6,15 +6,11 @@ from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
+from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.event import async_track_time_interval
 
-from .const import (
-    CONF_PREFIX,
-    DOMAIN,
-    SERIES,
-    SERVICE_RECALCULATE,
-)
-from .statistics import async_update_all
+from .const import DOMAIN, SERIES, SERVICE_RECALCULATE
+from .statistics import async_detect_prefix, async_update_all
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,15 +30,19 @@ def _prices(entry: TauronCostEntry) -> dict[str, float]:
 
 async def async_setup_entry(hass: HomeAssistant, entry: TauronCostEntry) -> bool:
     """Set up Tauron Cost from a config entry."""
-    prefix = entry.data[CONF_PREFIX]
+    prefix = await async_detect_prefix(hass)
+    if prefix is None:
+        raise ConfigEntryNotReady(
+            "No Tauron AMIplus zone statistics found yet; will retry."
+        )
+    entry.runtime_data = prefix
 
     async def _refresh(_now=None) -> None:
         try:
-            await async_update_all(hass, prefix, _prices(entry))
+            await async_update_all(hass, entry.runtime_data, _prices(entry))
         except Exception:  # noqa: BLE001 - scheduled task must not die silently
             _LOGGER.exception("Tauron cost refresh failed")
 
-    # Catch up now, then on a timer.
     await _refresh()
     entry.async_on_unload(async_track_time_interval(hass, _refresh, UPDATE_INTERVAL))
     entry.async_on_unload(entry.add_update_listener(_async_options_updated))
@@ -57,17 +57,14 @@ async def async_unload_entry(hass: HomeAssistant, entry: TauronCostEntry) -> boo
 
 
 async def _async_options_updated(hass: HomeAssistant, entry: TauronCostEntry) -> None:
-    """Rewrite cost statistics after a price change, then catch up to now.
-
-    Changing a price means the whole series must be recomputed, so the existing
-    cost statistics are cleared first and rebuilt from the importer history.
-    """
+    """Rewrite cost statistics after a price change, then catch up to now."""
     from homeassistant.components.recorder import get_instance
     from homeassistant.components.recorder.statistics import clear_statistics
 
+    instance = get_instance(hass)
     ids = [f"{DOMAIN}:{s.cost_key}" for s in SERIES]
-    await get_instance(hass).async_add_executor_job(clear_statistics, get_instance(hass), ids)
-    await async_update_all(hass, entry.data[CONF_PREFIX], _prices(entry))
+    await instance.async_add_executor_job(clear_statistics, instance, ids)
+    await async_update_all(hass, entry.runtime_data, _prices(entry))
 
 
 def _register_service(hass: HomeAssistant) -> None:
@@ -76,6 +73,6 @@ def _register_service(hass: HomeAssistant) -> None:
 
     async def _handle(call: ServiceCall) -> None:
         for entry in hass.config_entries.async_loaded_entries(DOMAIN):
-            await async_update_all(hass, entry.data[CONF_PREFIX], _prices(entry))
+            await async_update_all(hass, entry.runtime_data, _prices(entry))
 
     hass.services.async_register(DOMAIN, SERVICE_RECALCULATE, _handle)
