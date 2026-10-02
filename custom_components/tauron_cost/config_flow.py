@@ -66,7 +66,9 @@ class TauronCostConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input is not None:
             await self.async_set_unique_id(DOMAIN)
             self._abort_if_unique_id_configured()
-            return self.async_create_entry(title="Tauron Cost", options=dict(user_input))
+            return self.async_create_entry(
+                title="Tauron Cost", data={}, options=dict(user_input)
+            )
 
         return self.async_show_form(step_id="user", data_schema=_price_schema({}))
 
