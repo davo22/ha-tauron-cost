@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Tauron zone prices",
+        "description": "Unit prices in PLN/kWh (gross). Import (pobór) and the net-metering credit value (opust) per G12 zone.",
+        "data": {
+          "price_t1": "Import price — day T1 (PLN/kWh)",
+          "price_t2": "Import price — night T2 (PLN/kWh)",
+          "credit_t1": "Credit value — day T1 (PLN/kWh)",
+          "credit_t2": "Credit value — night T2 (PLN/kWh)"
+        }
+      }
+    },
+    "abort": {
+      "no_importer": "No Tauron AMIplus zone statistics found. Set up and let the Tauron AMIplus integration import data first.",
+      "already_configured": "Tauron Cost is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Tauron zone prices",
+        "description": "Changing a price rebuilds the whole cost history.",
+        "data": {
+          "price_t1": "Import price — day T1 (PLN/kWh)",
+          "price_t2": "Import price — night T2 (PLN/kWh)",
+          "credit_t1": "Credit value — day T1 (PLN/kWh)",
+          "credit_t2": "Credit value — night T2 (PLN/kWh)"
+        }
+      }
+    }
+  },
+  "services": {
+    "recalculate": {
+      "name": "Recalculate cost",
+      "description": "Extends the Tauron cost statistics to the latest available consumption."
+    }
+  }
+}

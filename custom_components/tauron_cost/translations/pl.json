@@ -1,0 +1,40 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Ceny stref Tauron",
+        "description": "Ceny jednostkowe w zł/kWh (brutto). Pobór oraz wartość opustu (net-metering) dla każdej strefy G12.",
+        "data": {
+          "price_t1": "Cena poboru — dzień T1 (zł/kWh)",
+          "price_t2": "Cena poboru — noc T2 (zł/kWh)",
+          "credit_t1": "Wartość opustu — dzień T1 (zł/kWh)",
+          "credit_t2": "Wartość opustu — noc T2 (zł/kWh)"
+        }
+      }
+    },
+    "abort": {
+      "no_importer": "Nie znaleziono statystyk stref Tauron AMIplus. Najpierw skonfiguruj integrację Tauron AMIplus i pozwól jej pobrać dane.",
+      "already_configured": "Tauron Cost jest już skonfigurowany."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Ceny stref Tauron",
+        "description": "Zmiana ceny przebudowuje całą historię kosztów.",
+        "data": {
+          "price_t1": "Cena poboru — dzień T1 (zł/kWh)",
+          "price_t2": "Cena poboru — noc T2 (zł/kWh)",
+          "credit_t1": "Wartość opustu — dzień T1 (zł/kWh)",
+          "credit_t2": "Wartość opustu — noc T2 (zł/kWh)"
+        }
+      }
+    }
+  },
+  "services": {
+    "recalculate": {
+      "name": "Przelicz koszty",
+      "description": "Dociąga statystyki kosztów Tauron do najnowszego dostępnego zużycia."
+    }
+  }
+}

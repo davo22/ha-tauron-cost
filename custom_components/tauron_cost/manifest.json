@@ -1,0 +1,13 @@
+{
+  "domain": "tauron_cost",
+  "name": "Tauron Cost (zone pricing)",
+  "codeowners": ["@davo22"],
+  "config_flow": true,
+  "dependencies": ["recorder"],
+  "documentation": "https://github.com/davo22/ha-tauron-cost",
+  "issue_tracker": "https://github.com/davo22/ha-tauron-cost/issues",
+  "integration_type": "service",
+  "iot_class": "calculated",
+  "requirements": [],
+  "version": "1.0.0"
+}
