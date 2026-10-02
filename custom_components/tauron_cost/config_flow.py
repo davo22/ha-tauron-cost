@@ -69,10 +69,12 @@ class TauronCostConfigFlow(ConfigFlow, domain=DOMAIN):
         if prefix is None:
             return self.async_abort(reason="no_importer")
 
-        await self.async_set_unique_id(prefix)
-        self._abort_if_unique_id_configured()
-
         if user_input is not None:
+            # Set the unique id only now (not on form display), so showing the
+            # form never leaves a half-registered flow that later starts collide
+            # with as "already_in_progress".
+            await self.async_set_unique_id(prefix)
+            self._abort_if_unique_id_configured()
             return self.async_create_entry(
                 title="Tauron Cost",
                 data={CONF_PREFIX: prefix},
